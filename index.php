@@ -38,10 +38,34 @@ if ($method == 'create') {
             'description' => $description
         ];
 
-        exit(curlPost($openApiUrl . "/mint",$post));
+        exit(curlPost($openApiUrl . "/mint", $post));
     } else {
         jerror("ERROR: please check pinata account");
     }
+}
+
+if ($method == 'query') {
+    $tokenId = $_POST['tokenId'];
+    $post = ['tokenId' > $tokenId];
+    exit(curlPost($openApiUrl . "/query", $post));
+}
+
+if ($method == 'burn') {
+    $tokenId = $_POST['tokenId'];
+    $post = ['tokenId' > $tokenId];
+    exit(curlPost($openApiUrl . "/burn", $post));
+}
+
+if ($method == 'transfer') {
+    $tokenId = $_POST['tokenId'];
+    $to = $_POST['receive'];
+    $post = ['tokenId' > $tokenId, 'to' => $to];
+    exit(curlPost($openApiUrl . "/transfer", $post));
+}
+
+if ($method == 'baseinfo') {
+    $post = [];
+    exit(curlPost($openApiUrl . "/baseinfo", $post));
 }
 
 
