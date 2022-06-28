@@ -17,6 +17,10 @@ $openApiUrl = "http://polygon_erc721_api.btcsoft.org/NFTCN/openApi";
 $method = $_POST['method'];
 $pinata = new Pinata($apiKey, $secretKey);
 
+header('Content-Type:application/json; charset=utf-8');
+header('Access-Control-Allow-Methods:*');
+header('Access-Control-Allow-Headers:*');
+header("Access-Control-Request-Headers:*");
 
 //$hash = $pinata->pinJSONToIPFS(['test' => 'moo2']);
 // $hash = $pinata->removePinFromIPFS('QmT7Ce9iW9P8ATw2y5ZSYdqhrKEwZify6DPUT9DJVXYutB');
@@ -44,22 +48,22 @@ if ($method == 'create') {
     }
 }
 
-if ($method == 'query') {
+if ($method == 'queryNFT') {
     $tokenId = $_POST['tokenId'];
-    $post = ['tokenId' > $tokenId];
-    exit(curlPost($openApiUrl . "/query", $post));
+    $post = ['tokenId' => $tokenId];
+    exit(curlPost($openApiUrl . "/queryNFT", $post));
 }
 
 if ($method == 'burn') {
     $tokenId = $_POST['tokenId'];
-    $post = ['tokenId' > $tokenId];
+    $post = ['tokenId' => $tokenId];
     exit(curlPost($openApiUrl . "/burn", $post));
 }
 
 if ($method == 'transfer') {
     $tokenId = $_POST['tokenId'];
     $to = $_POST['receive'];
-    $post = ['tokenId' > $tokenId, 'to' => $to];
+    $post = ['tokenId' => $tokenId, 'to' => $to];
     exit(curlPost($openApiUrl . "/transfer", $post));
 }
 
