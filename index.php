@@ -27,10 +27,32 @@ header("Access-Control-Request-Headers:*");
 // $hash = $pinata->removePinFromIPFS('QmT7Ce9iW9P8ATw2y5ZSYdqhrKEwZify6DPUT9DJVXYutB');
 // $hash = $pinata->pinHashToIPFS('QmT7Ce9iW9P8ATw2y5ZSYdqhrKEwZify6DPUT9DJVXYutB');
 
-if ($method == 'create') {
-    $fileFullPath = $_FILES['file']['tmp_name'];
-    $hash = $pinata->pinFileToIPFS($fileFullPath);
+if ($method == 'health') {
+    $result = curlPost($openApiUrl . "/healthCheck");
+    $result = json_decode($result, true);
 
+    $return = [
+        'api' => 'running',
+        'backend' => 'closed',
+        'jsonrpc' => 'closed'
+    ];
+
+    if ($result['status'] == 1) {
+        $return['backend'] = $result['data']['backend'];
+        $return['jsonrpc'] = $result['data']['jsonrpc'];
+    }
+    jsuccess($return);
+}
+
+
+if ($method == 'create') {
+    debug_log("create nft 操作：");
+    debug_log("1. 请求数据：");
+    debug_log($_POST);
+    $fileFullPath = $_POST['file'];
+    debug_log("2. 上传IPFS");
+    $hash = $pinata->pinFileToIPFS($fileFullPath);
+    debug_log($hash);
     if ($hash['IpfsHash'] != null) {
         $image = "https://gateway.pinata.cloud/ipfs/" . $hash['IpfsHash'];
         $name = $_POST['name'];
@@ -41,8 +63,10 @@ if ($method == 'create') {
             'name' => $name,
             'description' => $description
         ];
-
-        exit(curlPost($openApiUrl . "/mint", $post));
+        debug_log("3. 保存metadata数据");
+        $result = curlPost($openApiUrl . "/mint", $post);
+        debug_log($result);
+        exit($result);
     } else {
         jerror("ERROR: please check pinata account");
     }
@@ -154,4 +178,11 @@ function json($ret = 0, $msg = '', $data = '')
     exit;
 }
 
+function debug_log($val)
+{
+    if (is_array($val)) {
+        $val = var_export($val, true);
+    }
+    file_put_contents('debug_log.txt', date('Y-m-d H:i:s', time()) . ' debug : ' . $val . "\r\n", FILE_APPEND);
+}
 
